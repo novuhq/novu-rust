@@ -115,12 +115,38 @@ impl Novu {
             to: data.to,
         };
 
-        self.client
+        let result = self
+            .client
             .post(&format!("{}/events/trigger", self.backend_url))
             .json(&data)
             .send()
             .await?;
 
-        Ok(())
+        if result.status().is_success() {
+            return Ok(());
+        }
+
+        Err(format!(
+            "Failed to trigger event, API request failed with response code {}",
+            result.status()
+        )
+        .into())
     }
+}
+
+#[cfg(test)]
+#[tokio::test]
+async fn test_trigger() {
+    let novu = Novu::new("".to_string(), None).unwrap();
+    let result = novu
+        .trigger(
+            "",
+            ITriggerPayloadOptions {
+                payload: HashMap::new(),
+                to: TriggerRecipientsType::Single("".to_string()),
+            },
+        )
+        .await;
+
+    assert!(result.is_err());
 }
