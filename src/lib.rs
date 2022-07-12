@@ -60,7 +60,19 @@ pub struct Novu {
 
 impl Novu {
     pub fn new(api_key: String, backend_url: Option<String>) -> Result<Self, Box<dyn Error>> {
-        // todo: introduce a lifetime for subscriber
+        let subscriber = subscriber::Subscribers::new(
+            Novu::build_backend_url(&backend_url),
+            Novu::build_client(&api_key)?,
+        );
+
+        Ok(Self {
+            backend_url: Novu::build_backend_url(&backend_url),
+            client: Novu::build_client(&api_key)?,
+            subscriber,
+        })
+    }
+
+    fn build_client(api_key: &str) -> Result<reqwest::Client, Box<dyn Error>> {
         let mut default_headers1 = reqwest::header::HeaderMap::new();
 
         default_headers1.insert(
@@ -68,29 +80,11 @@ impl Novu {
             reqwest::header::HeaderValue::from_str(&api_key)?,
         );
 
-        let mut default_headers2 = reqwest::header::HeaderMap::new();
-
-        default_headers2.insert(
-            "Authorization",
-            reqwest::header::HeaderValue::from_str(&api_key)?,
-        );
-
-        let client1 = reqwest::Client::builder()
+        let client = reqwest::Client::builder()
             .default_headers(default_headers1)
             .build()?;
 
-        let client2 = reqwest::Client::builder()
-            .default_headers(default_headers2)
-            .build()?;
-
-        Ok(Self {
-            backend_url: Novu::build_backend_url(&backend_url),
-            client: client1,
-            subscriber: subscriber::Subscribers::new(
-                Novu::build_backend_url(&backend_url),
-                client2,
-            ),
-        })
+        Ok(client)
     }
 
     fn build_backend_url(backend_url: &Option<String>) -> String {
