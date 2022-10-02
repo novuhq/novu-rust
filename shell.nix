@@ -17,5 +17,6 @@ pkgs.mkShell {
   nativeBuildInputs = [
     pkgs.pkg-config
     pkgs.rust-analyzer
+    pkgs.cargo-deny
   ];
 }
