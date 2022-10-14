@@ -1,5 +1,5 @@
 [package]
-name = "novu-rust"
+name = "novu"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,3 +9,6 @@ edition = "2021"
 reqwest = { version = "0.11.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.139", features = ["derive"] }
+
+[workspace]
+members = ["examples/*"]
