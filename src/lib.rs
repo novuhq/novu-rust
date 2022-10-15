@@ -77,7 +77,7 @@ impl Novu {
 
         default_headers1.insert(
             "Authorization",
-            reqwest::header::HeaderValue::from_str(&api_key)?,
+            reqwest::header::HeaderValue::from_str(api_key)?,
         );
 
         let client = reqwest::Client::builder()
@@ -105,7 +105,7 @@ impl Novu {
     }
 
     pub async fn trigger(
-        self: &Self,
+        self,
         event_id: &str,
         data: ITriggerPayloadOptions,
     ) -> Result<(), Box<dyn Error>> {
