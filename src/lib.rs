@@ -1,9 +1,12 @@
+pub mod client;
+pub mod error;
 pub mod events;
 pub mod subscriber;
 
-use events::{ITriggerPayloadOptions, TriggerPayload};
+use client::Client;
+use error::NovuError;
+use events::{TriggerPayload, TriggerResponse};
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
@@ -21,105 +24,59 @@ pub struct IAttachmentOptions {
 }
 
 pub struct Novu {
-    backend_url: String,
-    client: reqwest::Client,
-    pub subscriber: subscriber::Subscribers,
+    client: Client,
 }
 
 impl Novu {
-    // This X generic allows to pass &str or String
-    pub fn new<X: ToString>(api_key: X, backend_url: Option<X>) -> Result<Self, Box<dyn Error>> {
-        let subscriber = subscriber::Subscribers::new(
-            Self::build_backend_url(&backend_url),
-            Self::build_client(&api_key)?,
-        );
-
+    pub fn new(api_key: impl ToString, api_url: Option<impl ToString>) -> Result<Self, NovuError> {
         Ok(Self {
-            backend_url: Self::build_backend_url(&backend_url),
-            client: Self::build_client(&api_key)?,
-            subscriber,
+            client: Client::new(api_key, api_url)?,
         })
     }
 
-    // This ApiKey generic allows to pass &str or String
-    fn build_client<ApiKey: ToString>(api_key: &ApiKey) -> Result<reqwest::Client, Box<dyn Error>> {
-        let mut default_headers = reqwest::header::HeaderMap::new();
-
-        default_headers.insert(
-            "Authorization",
-            reqwest::header::HeaderValue::from_str(&api_key.to_string())?,
-        );
-
-        let client = reqwest::Client::builder()
-            .default_headers(default_headers)
-            .build()?;
-
-        Ok(client)
-    }
-
-    // This ApiUrl generic allows to pass &str or String
-    fn build_backend_url<ApiUrl: ToString>(backend_url: &Option<ApiUrl>) -> String {
-        const NOVU_VERSION: &str = "v1";
-
-        if let Some(backend_url) = backend_url {
-            let backend_url = &backend_url.to_string();
-
-            if backend_url.contains("novu.co/v") {
-                return backend_url.to_string();
-            }
-
-            return format!("{}/{}", backend_url, NOVU_VERSION);
-        }
-
-        format!(
-            "https://api.novu.co/{NOVU_VERSION}",
-            NOVU_VERSION = NOVU_VERSION
-        )
-    }
-
-    pub async fn trigger(
-        self,
-        event_id: &str,
-        data: ITriggerPayloadOptions,
-    ) -> Result<(), Box<dyn Error>> {
-        let data = TriggerPayload {
-            event_id: event_id.to_string(),
-            payload: data.payload,
-            to: data.to,
-        };
+    pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
+        println!("{:?}", data.to);
 
         let result = self
             .client
-            .post(&format!("{}/events/trigger", self.backend_url))
-            .json(&data)
-            .send()
+            .post::<TriggerResponse>("/events/trigger", &data)
             .await?;
 
-        if result.status().is_success() {
-            return Ok(());
+        match result {
+            client::Response::Success(data) => Ok(data),
+            client::Response::Error(err) => match err.status_code {
+                422 => Err(match err.message.as_str() {
+                    "TEMPLATE_NOT_FOUND" => NovuError::TemplateNotFound(data.name.to_string()),
+                    _ => NovuError::Unknown("".to_string()),
+                }),
+                401 => Err(NovuError::UnauthorizedError("/events/trigger".to_string())),
+                400 => {
+                    println!("{:?}", err);
+                    todo!()
+                }
+                code => todo!("{}", code),
+            },
+            client::Response::Messages(err) => Err(NovuError::InvalidValues(
+                "triggering".to_string(),
+                format!("{:?}", err.message),
+            )),
         }
-
-        Err(format!(
-            "Failed to trigger event, API request failed with response code {}",
-            result.status()
-        )
-        .into())
     }
 }
 
-#[cfg(test)]
-#[tokio::test]
-async fn test_trigger() {
-    let novu = Novu::new("", None).unwrap();
-    let result = novu
-        .trigger(
-            "",
-            ITriggerPayloadOptions {
-                payload: std::collections::HashMap::new(),
-                to: events::TriggerRecipientsType::Single("".to_string()),
-            },
-        )
-        .await;
+// #[cfg(test)]
+// #[tokio::test]
+// async fn test_trigger() {
+//     let novu = Novu::new("", None::<String>).unwrap();
+//     let result = novu
+//         .trigger(
+//             "",
+//             ITriggerPayloadOptions {
+//                 payload: std::collections::HashMap::new(),
+//                 to: events::TriggerRecipientsType::Single("".to_string()),
+//             },
+//         )
+//         .await;
 
-    assert!(result.is_err());
-}
+//     assert!(result.is_err());
+// }
