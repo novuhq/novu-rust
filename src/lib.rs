@@ -1,7 +1,9 @@
+pub mod events;
 pub mod subscriber;
 
+use events::{ITriggerPayloadOptions, TriggerPayload};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
@@ -18,40 +20,6 @@ pub struct IAttachmentOptions {
     pub channels: Option<Vec<ChannelTypeEnum>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum AllowedPayloadValues {
-    STRING(String),
-    StringArray(Vec<String>),
-    BOOLEAN(bool),
-    NUMBER(i32),
-    UNDEFINED(()),
-    AttachmentOptions(IAttachmentOptions),
-    AttachmentOptionsArray(Vec<IAttachmentOptions>),
-    RECORD(HashMap<String, String>),
-}
-
-type ITriggerPayload = HashMap<String, AllowedPayloadValues>;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum TriggerRecipientsType {
-    Single(String),
-    Multiple(Vec<String>),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ITriggerPayloadOptions {
-    pub payload: ITriggerPayload,
-    pub to: TriggerRecipientsType,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TriggerPayload {
-    #[serde(rename = "eventId")]
-    event_id: String,
-    payload: ITriggerPayload,
-    to: TriggerRecipientsType,
-}
-
 pub struct Novu {
     backend_url: String,
     client: reqwest::Client,
@@ -59,38 +27,43 @@ pub struct Novu {
 }
 
 impl Novu {
-    pub fn new(api_key: String, backend_url: Option<String>) -> Result<Self, Box<dyn Error>> {
+    // This X generic allows to pass &str or String
+    pub fn new<X: ToString>(api_key: X, backend_url: Option<X>) -> Result<Self, Box<dyn Error>> {
         let subscriber = subscriber::Subscribers::new(
-            Novu::build_backend_url(&backend_url),
-            Novu::build_client(&api_key)?,
+            Self::build_backend_url(&backend_url),
+            Self::build_client(&api_key)?,
         );
 
         Ok(Self {
-            backend_url: Novu::build_backend_url(&backend_url),
-            client: Novu::build_client(&api_key)?,
+            backend_url: Self::build_backend_url(&backend_url),
+            client: Self::build_client(&api_key)?,
             subscriber,
         })
     }
 
-    fn build_client(api_key: &str) -> Result<reqwest::Client, Box<dyn Error>> {
-        let mut default_headers1 = reqwest::header::HeaderMap::new();
+    // This ApiKey generic allows to pass &str or String
+    fn build_client<ApiKey: ToString>(api_key: &ApiKey) -> Result<reqwest::Client, Box<dyn Error>> {
+        let mut default_headers = reqwest::header::HeaderMap::new();
 
-        default_headers1.insert(
+        default_headers.insert(
             "Authorization",
-            reqwest::header::HeaderValue::from_str(api_key)?,
+            reqwest::header::HeaderValue::from_str(&api_key.to_string())?,
         );
 
         let client = reqwest::Client::builder()
-            .default_headers(default_headers1)
+            .default_headers(default_headers)
             .build()?;
 
         Ok(client)
     }
 
-    fn build_backend_url(backend_url: &Option<String>) -> String {
+    // This ApiUrl generic allows to pass &str or String
+    fn build_backend_url<ApiUrl: ToString>(backend_url: &Option<ApiUrl>) -> String {
         const NOVU_VERSION: &str = "v1";
 
         if let Some(backend_url) = backend_url {
+            let backend_url = &backend_url.to_string();
+
             if backend_url.contains("novu.co/v") {
                 return backend_url.to_string();
             }
@@ -137,13 +110,13 @@ impl Novu {
 #[cfg(test)]
 #[tokio::test]
 async fn test_trigger() {
-    let novu = Novu::new("".to_string(), None).unwrap();
+    let novu = Novu::new("", None).unwrap();
     let result = novu
         .trigger(
             "",
             ITriggerPayloadOptions {
-                payload: HashMap::new(),
-                to: TriggerRecipientsType::Single("".to_string()),
+                payload: std::collections::HashMap::new(),
+                to: events::TriggerRecipientsType::Single("".to_string()),
             },
         )
         .await;

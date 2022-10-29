@@ -1,5 +1,8 @@
 extern crate novu;
-use novu::*;
+use novu::{
+    events::{ITriggerPayloadOptions, TriggerRecipientsType},
+    Novu,
+};
 use std::collections::HashMap;
 #[async_std::main]
 async fn main() {
