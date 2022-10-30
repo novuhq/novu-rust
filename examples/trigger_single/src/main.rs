@@ -8,7 +8,7 @@ use novu::{
 use std::{collections::HashMap, env};
 #[async_std::main]
 async fn main() {
-    let novu = Novu::new(env::var("API_TOKEN").unwrap(), None::<String>).unwrap();
+    let novu = Novu::new(env::var("API_TOKEN").unwrap(), None).unwrap();
 
     let mut payload: HashMap<String, AllowedPayloadValues> = HashMap::new();
     payload.insert(

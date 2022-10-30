@@ -29,7 +29,7 @@ pub struct Novu {
 }
 
 impl Novu {
-    pub fn new(api_key: impl ToString, api_url: Option<impl ToString>) -> Result<Self, NovuError> {
+    pub fn new(api_key: impl ToString, api_url: Option<&str>) -> Result<Self, NovuError> {
         Ok(Self {
             client: Client::new(api_key, api_url)?,
         })
@@ -63,7 +63,7 @@ impl Novu {
 #[cfg(test)]
 #[tokio::test]
 async fn test_trigger() {
-    let novu = Novu::new("", None::<String>).unwrap();
+    let novu = Novu::new("", None).unwrap();
     let result = novu
         .trigger(TriggerPayload {
             name: "testing".to_string(),
