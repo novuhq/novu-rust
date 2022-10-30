@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::IAttachmentOptions;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum AllowedPayloadValues {
     STRING(String),
     StringArray(Vec<String>),
@@ -19,7 +20,7 @@ pub enum AllowedPayloadValues {
 pub type ITriggerPayload = HashMap<String, AllowedPayloadValues>;
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "TriggerRecipientsType")]
+#[serde(untagged)]
 pub enum TriggerRecipientsType {
     Single(TriggerRecipient),
     Multiple(Vec<TriggerRecipient>),

@@ -1,27 +1,32 @@
 extern crate novu;
 use novu::{
-    events::{TriggerPayload, TriggerRecipient, TriggerRecipientsType},
+    events::{AllowedPayloadValues, TriggerPayload, TriggerRecipient, TriggerRecipientsType},
     Novu,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 #[async_std::main]
 async fn main() {
-    // Again, this has been reset. So hard to not leak keys lol
-    let novu = Novu::new("2aea87f0ec8c090c64416f75373b1eb3", None::<String>).unwrap();
+    let novu = Novu::new(env::var("API_TOKEN").unwrap(), None::<String>).unwrap();
+
+    let mut payload: HashMap<String, AllowedPayloadValues> = HashMap::new();
+    payload.insert(
+        "name".to_string(),
+        AllowedPayloadValues::STRING("Midka".to_string()),
+    );
+
+    let serialized = serde_json::to_string(&payload).unwrap();
+
+    println!("{}", serialized);
+
     let result = novu
         .trigger(TriggerPayload {
             name: "testing".to_string(),
-            payload: HashMap::new(),
-            to: TriggerRecipientsType::Multiple(
-                [
-                    TriggerRecipient::new("1").first_name("Midka").build(),
-                    TriggerRecipient::new("midka@ritta.fi")
-                        .first_name("Midka")
-                        .last_name("Ritta")
-                        .email("midka@ritta.fi")
-                        .build(),
-                ]
-                .to_vec(),
+            payload,
+            to: TriggerRecipientsType::Single(
+                TriggerRecipient::new("10294729")
+                    .first_name("Midka")
+                    .email("midka@koira.testausserveri.fi")
+                    .build(),
             ),
         })
         .await;
