@@ -1,6 +1,6 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::error::NovuError;
+use crate::{consts::NOVU_API_VERSION, error::NovuError};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -81,8 +81,6 @@ impl Client {
     }
 
     fn build_backend_url(backend_url: &Option<impl ToString>) -> String {
-        const NOVU_VERSION: &str = "v1";
-
         if let Some(backend_url) = backend_url {
             let backend_url = &backend_url.to_string();
 
@@ -90,13 +88,10 @@ impl Client {
                 return backend_url.to_string();
             }
 
-            return format!("{}/{}", backend_url, NOVU_VERSION);
+            return format!("{}/{}", backend_url, NOVU_API_VERSION);
         }
 
-        format!(
-            "https://api.novu.co/{NOVU_VERSION}",
-            NOVU_VERSION = NOVU_VERSION
-        )
+        format!("https://api.novu.co/{}", NOVU_API_VERSION)
     }
 
     fn build_client(api_key: &impl ToString) -> Result<reqwest::Client, NovuError> {
