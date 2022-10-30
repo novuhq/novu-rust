@@ -62,19 +62,21 @@ impl Novu {
     }
 }
 
-// #[cfg(test)]
-// #[tokio::test]
-// async fn test_trigger() {
-//     let novu = Novu::new("", None::<String>).unwrap();
-//     let result = novu
-//         .trigger(
-//             "",
-//             ITriggerPayloadOptions {
-//                 payload: std::collections::HashMap::new(),
-//                 to: events::TriggerRecipientsType::Single("".to_string()),
-//             },
-//         )
-//         .await;
+#[cfg(test)]
+#[tokio::test]
+async fn test_trigger() {
+    let novu = Novu::new("", None::<String>).unwrap();
+    let result = novu
+        .trigger(TriggerPayload {
+            name: "testing".to_string(),
+            payload: std::collections::HashMap::new(),
+            to: events::TriggerRecipientsType::Single(
+                events::TriggerRecipient::new("1")
+                    .first_name("Midka")
+                    .build(),
+            ),
+        })
+        .await;
 
-//     assert!(result.is_err());
-// }
+    assert!(result.is_err());
+}
