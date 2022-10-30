@@ -3,16 +3,16 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use crate::error::NovuError;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct ApiError {
-    #[serde(rename = "statusCode")]
     pub status_code: i32,
     pub message: String,
     pub error: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct ApiErrorWithMessages {
-    #[serde(rename = "statusCode")]
     pub status_code: i32,
     pub message: Vec<String>,
     pub error: Option<String>,

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{client::Client, error::NovuError};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubscriberPayload {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -13,11 +14,10 @@ pub struct SubscriberPayload {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubscribersResponse {
     pub page: i32,
-    #[serde(rename = "totalCount")]
-    pub count: i32,
-    #[serde(rename = "pageSize")]
+    pub total_count: i32,
     pub page_size: i32,
     pub data: Vec<String>,
 }

@@ -27,17 +27,13 @@ pub enum TriggerRecipientsType {
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct TriggerRecipient {
-    #[serde(rename = "subscriberId")]
     subscriber_id: String,
     email: Option<String>,
-    #[serde(rename = "firstName")]
     first_name: Option<String>,
-    #[serde(rename = "lastName")]
     last_name: Option<String>,
-    #[serde(rename = "phone")]
     phone_number: Option<String>,
-    #[serde(rename = "avatar")]
     avatar_url: Option<String>,
 }
 
@@ -111,9 +107,9 @@ pub struct TriggerPayload {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TriggerResponse {
     pub acknowledged: bool,
     pub status: String,
-    #[serde(rename = "transactionId")]
     pub transaction_id: String,
 }
