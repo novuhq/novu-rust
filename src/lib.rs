@@ -35,10 +35,7 @@ impl Novu {
     }
 
     pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
-        let result = self
-            .client
-            .post::<TriggerResponse>("/events/trigger", &data)
-            .await?;
+        let result = self.client.post("/events/trigger", &data).await?;
 
         match result {
             client::Response::Success(data) => Ok(data.data),
