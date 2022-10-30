@@ -48,7 +48,7 @@ impl Client {
 
     pub async fn post<T: DeserializeOwned>(
         &self,
-        endpoint: &str,
+        endpoint: impl ToString,
         data: &impl Serialize,
     ) -> Result<Response<T>, NovuError> {
         let res = self
@@ -57,6 +57,18 @@ impl Client {
             .json(&data)
             .send()
             .await;
+
+        match res {
+            Ok(response) => Ok(response.json::<Response<T>>().await?),
+            Err(err) => Err(NovuError::HttpError(err)),
+        }
+    }
+
+    pub async fn get<T: DeserializeOwned>(
+        &self,
+        endpoint: impl ToString,
+    ) -> Result<Response<T>, NovuError> {
+        let res = self.client.get(self.get_url(endpoint)).send().await;
 
         match res {
             Ok(response) => Ok(response.json::<Response<T>>().await?),

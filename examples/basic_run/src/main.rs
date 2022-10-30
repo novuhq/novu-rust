@@ -1,6 +1,8 @@
 extern crate novu;
 use novu::{
-    events::{AllowedPayloadValues, TriggerPayload, TriggerRecipient, TriggerRecipientsType},
+    events::{
+        AllowedPayloadValues, TriggerPayload, TriggerRecipientBuilder, TriggerRecipientsType,
+    },
     Novu,
 };
 use std::{collections::HashMap, env};
@@ -23,7 +25,7 @@ async fn main() {
             name: "testing".to_string(),
             payload,
             to: TriggerRecipientsType::Single(
-                TriggerRecipient::new("10294729")
+                TriggerRecipientBuilder::new("10294729")
                     .first_name("Midka")
                     .email("midka@koira.testausserveri.fi")
                     .build(),

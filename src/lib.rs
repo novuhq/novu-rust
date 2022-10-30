@@ -68,8 +68,9 @@ async fn test_trigger() {
             name: "testing".to_string(),
             payload: std::collections::HashMap::new(),
             to: events::TriggerRecipientsType::Single(
-                events::TriggerRecipient::new("1")
-                    .first_name("Midka")
+                events::TriggerRecipientBuilder::new("test_subscriber_id")
+                    .first_name("Test")
+                    .last_name("testing")
                     .build(),
             ),
         })

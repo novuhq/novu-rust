@@ -42,44 +42,64 @@ pub struct TriggerRecipient {
 }
 
 impl TriggerRecipient {
-    pub fn new(subscriber_id: impl ToString) -> Self {
+    pub fn builder() -> TriggerRecipientBuilder {
+        TriggerRecipientBuilder::default()
+    }
+}
+
+#[derive(Default)]
+pub struct TriggerRecipientBuilder {
+    recipient: TriggerRecipient,
+}
+
+impl TriggerRecipientBuilder {
+    pub fn new(subscriber_id: impl ToString) -> TriggerRecipientBuilder {
         Self {
-            subscriber_id: subscriber_id.to_string(),
-            email: None,
-            first_name: None,
-            last_name: None,
-            phone_number: None,
-            avatar_url: None,
+            recipient: TriggerRecipient {
+                subscriber_id: subscriber_id.to_string(),
+                email: None,
+                first_name: None,
+                last_name: None,
+                phone_number: None,
+                avatar_url: None,
+            },
         }
     }
 
-    pub fn first_name(&mut self, name: impl ToString) -> &mut Self {
-        self.first_name = Some(name.to_string());
+    pub fn first_name(mut self, name: impl ToString) -> TriggerRecipientBuilder {
+        self.recipient.first_name = Some(name.to_string());
         self
     }
 
-    pub fn last_name(&mut self, name: impl ToString) -> &mut Self {
-        self.last_name = Some(name.to_string());
+    pub fn last_name(mut self, name: impl ToString) -> TriggerRecipientBuilder {
+        self.recipient.last_name = Some(name.to_string());
         self
     }
 
-    pub fn email(&mut self, email: impl ToString) -> &mut Self {
-        self.email = Some(email.to_string());
+    pub fn email(mut self, email: impl ToString) -> TriggerRecipientBuilder {
+        self.recipient.email = Some(email.to_string());
         self
     }
 
-    pub fn phone_number(&mut self, phone_number: impl ToString) -> &mut Self {
-        self.phone_number = Some(phone_number.to_string());
+    pub fn phone_number(mut self, phone_number: impl ToString) -> TriggerRecipientBuilder {
+        self.recipient.phone_number = Some(phone_number.to_string());
         self
     }
 
-    pub fn avatar_url(&mut self, avatar_url: impl ToString) -> &mut Self {
-        self.avatar_url = Some(avatar_url.to_string());
+    pub fn avatar_url(mut self, avatar_url: impl ToString) -> TriggerRecipientBuilder {
+        self.recipient.avatar_url = Some(avatar_url.to_string());
         self
     }
 
-    pub fn build(&self) -> Self {
-        self.clone()
+    pub fn build(self) -> TriggerRecipient {
+        TriggerRecipient {
+            subscriber_id: self.recipient.subscriber_id,
+            email: self.recipient.email,
+            first_name: self.recipient.first_name,
+            last_name: self.recipient.last_name,
+            phone_number: self.recipient.phone_number,
+            avatar_url: self.recipient.avatar_url,
+        }
     }
 }
 
