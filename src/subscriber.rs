@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{client::Client, error::NovuError};
+use crate::{
+    client::{Client, Response},
+    error::NovuError,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -32,9 +35,9 @@ impl Subscribers {
     }
 
     pub async fn list(&self, page: i32) -> Result<SubscribersResponse, NovuError> {
-        let result = self
+        let result: Response<SubscribersResponse> = self
             .client
-            .get::<SubscribersResponse>(format!("/subscribers/?page={}", page))
+            .get(format!("/subscribers/?page={}", page))
             .await?;
 
         match result {
