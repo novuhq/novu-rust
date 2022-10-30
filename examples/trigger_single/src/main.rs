@@ -13,21 +13,17 @@ async fn main() {
     let mut payload: HashMap<String, AllowedPayloadValues> = HashMap::new();
     payload.insert(
         "name".to_string(),
-        AllowedPayloadValues::STRING("Midka".to_string()),
+        AllowedPayloadValues::STRING("Test".to_string()),
     );
-
-    let serialized = serde_json::to_string(&payload).unwrap();
-
-    println!("{}", serialized);
 
     let result = novu
         .trigger(TriggerPayload {
             name: "testing".to_string(),
             payload,
             to: TriggerRecipientsType::Single(
-                TriggerRecipientBuilder::new("10294729")
-                    .first_name("Midka")
-                    .email("midka@koira.testausserveri.fi")
+                TriggerRecipientBuilder::new("testing")
+                    .first_name("Test")
+                    .email("me+test@midka.dev")
                     .build(),
             ),
         })
