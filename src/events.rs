@@ -34,6 +34,10 @@ pub struct TriggerRecipient {
     first_name: Option<String>,
     #[serde(rename = "lastName")]
     last_name: Option<String>,
+    #[serde(rename = "phone")]
+    phone_number: Option<String>,
+    #[serde(rename = "avatar")]
+    avatar_url: Option<String>,
 }
 
 impl TriggerRecipient {
@@ -43,11 +47,33 @@ impl TriggerRecipient {
             email: None,
             first_name: None,
             last_name: None,
+            phone_number: None,
+            avatar_url: None,
         }
     }
 
     pub fn first_name(&mut self, name: impl ToString) -> &mut Self {
         self.first_name = Some(name.to_string());
+        self
+    }
+
+    pub fn last_name(&mut self, name: impl ToString) -> &mut Self {
+        self.last_name = Some(name.to_string());
+        self
+    }
+
+    pub fn email(&mut self, email: impl ToString) -> &mut Self {
+        self.email = Some(email.to_string());
+        self
+    }
+
+    pub fn phone_number(&mut self, phone_number: impl ToString) -> &mut Self {
+        self.phone_number = Some(phone_number.to_string());
+        self
+    }
+
+    pub fn avatar_url(&mut self, avatar_url: impl ToString) -> &mut Self {
+        self.avatar_url = Some(avatar_url.to_string());
         self
     }
 
@@ -65,8 +91,8 @@ pub struct TriggerPayload {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TriggerResponse {
-    acknowledged: bool,
-    status: String,
+    pub acknowledged: bool,
+    pub status: String,
     #[serde(rename = "transactionId")]
-    transaction_id: String,
+    pub transaction_id: String,
 }

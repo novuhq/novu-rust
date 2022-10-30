@@ -19,9 +19,14 @@ pub struct ApiErrorWithMessages {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct DataContainer<T> {
+    pub data: T,
+}
+
+#[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Response<T> {
-    Success(T),
+    Success(DataContainer<T>),
     Error(ApiError),
     Messages(ApiErrorWithMessages),
 }

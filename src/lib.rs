@@ -35,15 +35,13 @@ impl Novu {
     }
 
     pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
-        println!("{:?}", data.to);
-
         let result = self
             .client
             .post::<TriggerResponse>("/events/trigger", &data)
             .await?;
 
         match result {
-            client::Response::Success(data) => Ok(data),
+            client::Response::Success(data) => Ok(data.data),
             client::Response::Error(err) => match err.status_code {
                 422 => Err(match err.message.as_str() {
                     "TEMPLATE_NOT_FOUND" => NovuError::TemplateNotFound(data.name.to_string()),

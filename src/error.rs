@@ -13,7 +13,7 @@ pub enum NovuError {
     InvalidHeaderValue(#[from] InvalidHeaderValue),
     #[error("couldn't trigger '{0}'")]
     TriggerError(String),
-    #[error("unauthorized: {0}")]
+    #[error("unauthorized, path: {0}")]
     UnauthorizedError(String),
     #[error("invalid values when '{0}': {1}")]
     InvalidValues(String, String),
