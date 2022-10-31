@@ -1,6 +1,6 @@
 # Novu's Rust SDK
 
-> _NOTE: THIS PROJECT IS CURRENTLY NOT IN CRATES.IO_
+> _NOTE: THIS PROJECT IS NOT CURRENTLY IN CRATES.IO_
 
 This is the **Blazingly Fast** (not really) SDK for [novu](https://github.com/novuhq/novu). This SDK should be used in your server-side code. 🚀
 
@@ -28,7 +28,7 @@ This is the **Blazingly Fast** (not really) SDK for [novu](https://github.com/no
 
 ### Triggering a notification
 
-You need to add the `novu` dependency to your `Cargo.toml`. This can be done with `cargo add novu`.
+~~You need to add the `novu` dependency to your `Cargo.toml`. This can be done with `cargo add novu`.~~ Currently not possible.
 
 We currently only support async/await.
 
