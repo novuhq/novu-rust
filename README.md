@@ -62,7 +62,7 @@ match result {
 }
 ```
 
-#### Things you need to done
+#### Things you need to do
 
 - Replace `<your api key>` with your api key
 - Replace `<your template name>` with the template you want to use
