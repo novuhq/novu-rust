@@ -1,7 +1,13 @@
+pub mod client;
+pub mod consts;
+pub mod error;
+pub mod events;
 pub mod subscriber;
 
+use client::Client;
+use error::NovuError;
+use events::{TriggerPayload, TriggerResponse};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, error::Error};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
@@ -18,134 +24,57 @@ pub struct IAttachmentOptions {
     pub channels: Option<Vec<ChannelTypeEnum>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum AllowedPayloadValues {
-    STRING(String),
-    StringArray(Vec<String>),
-    BOOLEAN(bool),
-    NUMBER(i32),
-    UNDEFINED(()),
-    AttachmentOptions(IAttachmentOptions),
-    AttachmentOptionsArray(Vec<IAttachmentOptions>),
-    RECORD(HashMap<String, String>),
-}
-
-type ITriggerPayload = HashMap<String, AllowedPayloadValues>;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum TriggerRecipientsType {
-    Single(String),
-    Multiple(Vec<String>),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ITriggerPayloadOptions {
-    pub payload: ITriggerPayload,
-    pub to: TriggerRecipientsType,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TriggerPayload {
-    #[serde(rename = "eventId")]
-    event_id: String,
-    payload: ITriggerPayload,
-    to: TriggerRecipientsType,
-}
-
 pub struct Novu {
-    backend_url: String,
-    client: reqwest::Client,
-    pub subscriber: subscriber::Subscribers,
+    client: Client,
 }
 
 impl Novu {
-    pub fn new(api_key: String, backend_url: Option<String>) -> Result<Self, Box<dyn Error>> {
-        let subscriber = subscriber::Subscribers::new(
-            Novu::build_backend_url(&backend_url),
-            Novu::build_client(&api_key)?,
-        );
-
+    pub fn new(api_key: impl ToString, api_url: Option<&str>) -> Result<Self, NovuError> {
         Ok(Self {
-            backend_url: Novu::build_backend_url(&backend_url),
-            client: Novu::build_client(&api_key)?,
-            subscriber,
+            client: Client::new(api_key, api_url)?,
         })
     }
 
-    fn build_client(api_key: &str) -> Result<reqwest::Client, Box<dyn Error>> {
-        let mut default_headers1 = reqwest::header::HeaderMap::new();
+    pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
+        let result = self.client.post("/events/trigger", &data).await?;
 
-        default_headers1.insert(
-            "Authorization",
-            reqwest::header::HeaderValue::from_str(api_key)?,
-        );
-
-        let client = reqwest::Client::builder()
-            .default_headers(default_headers1)
-            .build()?;
-
-        Ok(client)
-    }
-
-    fn build_backend_url(backend_url: &Option<String>) -> String {
-        const NOVU_VERSION: &str = "v1";
-
-        if let Some(backend_url) = backend_url {
-            if backend_url.contains("novu.co/v") {
-                return backend_url.to_string();
-            }
-
-            return format!("{}/{}", backend_url, NOVU_VERSION);
+        match result {
+            client::Response::Success(data) => Ok(data.data),
+            client::Response::Error(err) => match err.status_code {
+                422 => Err(match err.message.as_str() {
+                    "TEMPLATE_NOT_FOUND" => NovuError::TemplateNotFound(data.name.to_string()),
+                    _ => NovuError::Unknown("".to_string()),
+                }),
+                401 => Err(NovuError::UnauthorizedError("/events/trigger".to_string())),
+                400 => {
+                    println!("{:?}", err);
+                    todo!()
+                }
+                code => todo!("{}", code),
+            },
+            client::Response::Messages(err) => Err(NovuError::InvalidValues(
+                "triggering".to_string(),
+                format!("{:?}", err.message),
+            )),
         }
-
-        format!(
-            "https://api.novu.co/{NOVU_VERSION}",
-            NOVU_VERSION = NOVU_VERSION
-        )
-    }
-
-    pub async fn trigger(
-        self,
-        event_id: &str,
-        data: ITriggerPayloadOptions,
-    ) -> Result<(), Box<dyn Error>> {
-        let data = TriggerPayload {
-            event_id: event_id.to_string(),
-            payload: data.payload,
-            to: data.to,
-        };
-
-        let result = self
-            .client
-            .post(&format!("{}/events/trigger", self.backend_url))
-            .json(&data)
-            .send()
-            .await?;
-
-        if result.status().is_success() {
-            return Ok(());
-        }
-
-        Err(format!(
-            "Failed to trigger event, API request failed with response code {}",
-            result.status()
-        )
-        .into())
     }
 }
 
 #[cfg(test)]
 #[tokio::test]
 async fn test_trigger() {
-    let novu = Novu::new("".to_string(), None).unwrap();
+    let novu = Novu::new("", None).unwrap();
     let result = novu
-        .trigger(
-            "",
-            ITriggerPayloadOptions {
-                payload: HashMap::new(),
-                to: TriggerRecipientsType::Single("".to_string()),
-            },
-        )
+        .trigger(TriggerPayload {
+            name: "testing".to_string(),
+            payload: std::collections::HashMap::new(),
+            to: events::TriggerRecipientsType::Single(
+                events::TriggerRecipientBuilder::new("test_subscriber_id")
+                    .first_name("Test")
+                    .last_name("testing")
+                    .build(),
+            ),
+        })
         .await;
 
     assert!(result.is_err());

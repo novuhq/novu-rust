@@ -9,6 +9,7 @@ edition = "2021"
 reqwest = { version = "0.11.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.139", features = ["derive"] }
+thiserror = "1.0"
 
 [workspace]
 members = ["examples/*"]
