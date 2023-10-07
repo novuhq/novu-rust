@@ -113,7 +113,7 @@ impl Novu {
     pub async fn update_environment(
         &self,
         environment_id: String,
-        data: CreateEnvironmentPayload, // this is flattened, fix
+        data: CreateEnvironmentPayload,
     ) -> Result<Environment, NovuError> {
         let result = self
             .client

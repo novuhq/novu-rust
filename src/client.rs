@@ -49,7 +49,6 @@ impl Client {
     pub async fn post<T: DeserializeOwned>(
         &self,
         endpoint: impl ToString,
-        //optional data, prevent serialization error. this currently fails if data is not provided or () is provided
         data: Option<&impl Serialize>,
     ) -> Result<Response<T>, NovuError> {
         if data.is_none() {

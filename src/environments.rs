@@ -1,22 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/** Environment api response
- * {
-  "data": {
-    "_id": "string",
-    "name": "string",
-    "_organizationId": "string",
-    "identifier": "string",
-    "apiKeys": [
-      {
-        "key": "string",
-        "_userId": "string"
-      }
-    ],
-    "_parentId": "string"
-  }
-}
- */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Environment {
@@ -42,17 +25,6 @@ pub struct EnvironmentPayload {
     pub parent_id: Option<String>,
 }
 
-/*
-{
-    'name' => 'Local', # optional
-    'identifier' => 'local', # optional
-    'parentId' => '7789', # optional
-    'dns' => { # optional
-        'inboundParseDomain' => 'dev.test' # optional
-    }
-}
-
-*/
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateEnvironmentPayload {
