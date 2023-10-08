@@ -218,10 +218,7 @@ async fn test_get_environments() {
 async fn test_create_environment() {
     let novu = Novu::new("", None).unwrap();
     let create_result = novu
-        .create_environment(EnvironmentPayload {
-            name: "test".to_string(),
-            parent_id: None,
-        })
+        .create_environment(environments::EnvironmentPayloadBuilder::new("test").build())
         .await;
     assert!(create_result.is_err());
 }
@@ -233,12 +230,7 @@ async fn test_update_environment() {
     let update_result = novu
         .update_environment(
             "test".to_string(),
-            CreateEnvironmentPayload {
-                name: None,
-                identifier: None,
-                parent_id: None,
-                dns: None,
-            },
+            environments::CreateEnvironmentPayloadBuilder::new().build(),
         )
         .await;
     assert!(update_result.is_err());
