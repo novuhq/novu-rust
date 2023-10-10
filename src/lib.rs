@@ -2,11 +2,13 @@ pub mod client;
 pub mod consts;
 pub mod error;
 pub mod events;
+pub mod feeds;
 pub mod subscriber;
 
 use client::Client;
 use error::NovuError;
 use events::{TriggerPayload, TriggerResponse};
+use feeds::Feeds;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,13 +28,15 @@ pub struct IAttachmentOptions {
 
 pub struct Novu {
     client: Client,
+    pub feeds: Feeds,
 }
 
 impl Novu {
     pub fn new(api_key: impl ToString, api_url: Option<&str>) -> Result<Self, NovuError> {
-        Ok(Self {
-            client: Client::new(api_key, api_url)?,
-        })
+        let client = Client::new(api_key, api_url)?;
+        let feeds = Feeds::new(client.clone_client());
+
+        Ok(Self { client, feeds })
     }
 
     pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
