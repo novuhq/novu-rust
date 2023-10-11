@@ -49,18 +49,27 @@ impl Client {
     pub async fn post<T: DeserializeOwned>(
         &self,
         endpoint: impl ToString,
-        data: &impl Serialize,
+        data: Option<&impl Serialize>,
     ) -> Result<Response<T>, NovuError> {
-        let res = self
-            .client
-            .post(self.get_url(endpoint))
-            .json(&data)
-            .send()
-            .await;
+        if data.is_none() {
+            let res = self.client.post(self.get_url(endpoint)).send().await;
 
-        match res {
-            Ok(response) => Ok(response.json::<Response<T>>().await?),
-            Err(err) => Err(NovuError::HttpError(err)),
+            match res {
+                Ok(response) => Ok(response.json::<Response<T>>().await?),
+                Err(err) => Err(NovuError::HttpError(err)),
+            }
+        } else {
+            let res = self
+                .client
+                .post(self.get_url(endpoint))
+                .json(&data.unwrap())
+                .send()
+                .await;
+
+            match res {
+                Ok(response) => Ok(response.json::<Response<T>>().await?),
+                Err(err) => Err(NovuError::HttpError(err)),
+            }
         }
     }
 
@@ -81,6 +90,24 @@ impl Client {
         endpoint: impl ToString,
     ) -> Result<Response<T>, NovuError> {
         let res = self.client.delete(self.get_url(endpoint)).send().await;
+
+        match res {
+            Ok(response) => Ok(response.json::<Response<T>>().await?),
+            Err(err) => Err(NovuError::HttpError(err)),
+        }
+    }
+
+    pub async fn put<T: DeserializeOwned>(
+        &self,
+        endpoint: impl ToString,
+        data: &impl Serialize,
+    ) -> Result<Response<T>, NovuError> {
+        let res = self
+            .client
+            .put(self.get_url(endpoint))
+            .json(&data)
+            .send()
+            .await;
 
         match res {
             Ok(response) => Ok(response.json::<Response<T>>().await?),
