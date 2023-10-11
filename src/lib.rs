@@ -6,7 +6,7 @@ pub mod events;
 pub mod subscriber;
 
 use client::Client;
-use environments::{ApiKey, CreateEnvironmentPayload, Environment, EnvironmentPayload};
+use environments::{ApiKey, Environment, EnvironmentPayload};
 use error::NovuError;
 use events::{TriggerPayload, TriggerResponse};
 use serde::{Deserialize, Serialize};
@@ -110,31 +110,6 @@ impl Novu {
         }
     }
 
-    pub async fn update_environment(
-        &self,
-        environment_id: String,
-        data: CreateEnvironmentPayload,
-    ) -> Result<Environment, NovuError> {
-        let result = self
-            .client
-            .put(&format!("/environments/{}", environment_id), &data)
-            .await?;
-        match result {
-            client::Response::Success(data) => Ok(data.data),
-            client::Response::Error(err) => match err.status_code {
-                401 => Err(NovuError::UnauthorizedError(format!(
-                    "/environments/{}",
-                    environment_id
-                ))),
-                code => todo!("{}", code),
-            },
-            client::Response::Messages(err) => Err(NovuError::InvalidValues(
-                "current_environment".to_string(),
-                format!("{:?}", err.message),
-            )),
-        }
-    }
-
     pub async fn get_environment_api_keys(&self) -> Result<ApiKey, NovuError> {
         let result = self.client.get("/environments/api-keys").await?;
         match result {
@@ -221,19 +196,6 @@ async fn test_create_environment() {
         .create_environment(environments::EnvironmentPayloadBuilder::new("test").build())
         .await;
     assert!(create_result.is_err());
-}
-
-#[cfg(test)]
-#[tokio::test]
-async fn test_update_environment() {
-    let novu = Novu::new("", None).unwrap();
-    let update_result = novu
-        .update_environment(
-            "test".to_string(),
-            environments::CreateEnvironmentPayloadBuilder::new().build(),
-        )
-        .await;
-    assert!(update_result.is_err());
 }
 
 #[cfg(test)]
