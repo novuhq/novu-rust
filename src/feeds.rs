@@ -51,7 +51,7 @@ impl Feeds {
     }
 
     pub async fn create(&self, data: FeedPayload) -> Result<Feed, NovuError> {
-        let result: Response<Feed> = self.client.post("/feeds", &data).await?;
+        let result: Response<Feed> = self.client.post("/feeds", Some(&data)).await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
