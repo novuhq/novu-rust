@@ -137,10 +137,10 @@ impl Changes {
         }
     }
 
-    pub async fn apply(&self, change_id: impl ToString) -> Result<ApplyChangeResponse, NovuError> {
+    pub async fn apply(&self, change_id: String) -> Result<ApplyChangeResponse, NovuError> {
         let result: Response<ApplyChangeResponse> = self
             .client
-            .post(format!("/changes/{}/apply", change_id), Some(&data))
+            .post(format!("/changes/{}/apply", change_id), None::<&()>)
             .await?;
 
         match result {
