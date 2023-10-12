@@ -85,6 +85,18 @@ impl Client {
         }
     }
 
+    pub async fn delete<T: DeserializeOwned>(
+        &self,
+        endpoint: impl ToString,
+    ) -> Result<Response<T>, NovuError> {
+        let res = self.client.delete(self.get_url(endpoint)).send().await;
+
+        match res {
+            Ok(response) => Ok(response.json::<Response<T>>().await?),
+            Err(err) => Err(NovuError::HttpError(err)),
+        }
+    }
+
     pub async fn put<T: DeserializeOwned>(
         &self,
         endpoint: impl ToString,
@@ -136,6 +148,13 @@ impl Client {
         match client {
             Ok(data) => Ok(data),
             Err(_) => Err(NovuError::BuildError("client".to_string())),
+        }
+    }
+
+    pub fn clone_client(&self) -> Self {
+        Self {
+            api_url: self.api_url.clone(),
+            client: self.client.clone(),
         }
     }
 }
