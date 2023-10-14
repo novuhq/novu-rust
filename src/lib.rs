@@ -5,6 +5,7 @@ pub mod environments;
 pub mod error;
 pub mod events;
 pub mod feeds;
+pub mod messages;
 pub mod subscriber;
 
 use client::Client;
@@ -12,6 +13,7 @@ use environments::{ApiKey, Environment, EnvironmentPayload};
 use error::NovuError;
 use events::{TriggerPayload, TriggerResponse};
 use feeds::Feeds;
+use messages::Messages;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,14 +34,20 @@ pub struct IAttachmentOptions {
 pub struct Novu {
     client: Client,
     pub feeds: Feeds,
+    pub messages: Messages,
 }
 
 impl Novu {
     pub fn new(api_key: impl ToString, api_url: Option<&str>) -> Result<Self, NovuError> {
         let client = Client::new(api_key, api_url)?;
         let feeds = Feeds::new(client.clone_client());
+        let messages = Messages::new(client.clone_client());
 
-        Ok(Self { client, feeds })
+        Ok(Self {
+            client,
+            feeds,
+            messages,
+        })
     }
 
     pub async fn trigger(self, data: TriggerPayload) -> Result<TriggerResponse, NovuError> {
