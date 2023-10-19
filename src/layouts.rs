@@ -1,7 +1,7 @@
 use crate::{
-    changes::generate_query_string,
     client::{Client, Response},
     error::NovuError,
+    utils::generate_query_string,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

@@ -6,18 +6,20 @@ pub mod environments;
 pub mod error;
 pub mod events;
 pub mod feeds;
-pub mod layouts;
 pub mod inbound_parse;
+pub mod layouts;
 pub mod subscriber;
+pub mod utils;
 
 use client::Client;
 use environments::{ApiKey, Environment, EnvironmentPayload};
 use error::NovuError;
 use events::{TriggerPayload, TriggerResponse};
 use feeds::Feeds;
-use layouts::Layouts;
 use inbound_parse::InboundParse;
+use layouts::Layouts;
 use serde::{Deserialize, Serialize};
+use utils::generate_query_string;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
