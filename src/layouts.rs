@@ -101,7 +101,7 @@ impl Layouts {
 
         let result = self
             .client
-            .get(format!("/layouts/?{}", generate_query_string(params)))
+            .get(format!("/layouts/?{}", generate_query_string(&params)))
             .await?;
 
         match result {
@@ -131,14 +131,14 @@ impl Layouts {
         }
     }
 
-    pub async fn update(&self, id: String, data: CreateLayoutPayload) -> Result<None, NovuError> {
-        let result: Response<()> = self
+    pub async fn update(&self, id: String, data: CreateLayoutPayload) -> Result<Layout, NovuError> {
+        let result: Response<Layout> = self
             .client
             .patch(format!("/layouts/{}", id), Some(&data))
             .await?;
 
         match result {
-            Response::Success(_) => Ok(()),
+            Response::Success(data) => Ok(data.data),
             Response::Error(err) => match err.status_code {
                 401 => Err(NovuError::UnauthorizedError("/layouts".to_string())),
                 code => todo!("{}", code),
@@ -160,10 +160,10 @@ impl Layouts {
         }
     }
 
-    pub async fn set_default(&self, id: String) -> Result<Option<()>, NovuError> {
+    pub async fn set_default(&self, id: String) -> Result<(), NovuError> {
         let result: Response<()> = self
             .client
-            .post(format!("/layouts/{}/default", id), ())
+            .post(format!("/layouts/{}/default", id), None)
             .await?;
 
         match result {
