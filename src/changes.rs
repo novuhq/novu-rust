@@ -41,6 +41,24 @@ pub struct ChangesResponse {
     pub data: Vec<Change>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChangesCountResponse {
+    pub data: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkApplyChangesRequest {
+    pub change_ids: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplyChangeResponse {
+    pub data: Vec<Change>,
+}
+
 pub struct Changes {
     client: Client,
 }
@@ -86,6 +104,43 @@ impl Changes {
         let result: Response<ChangesResponse> = self
             .client
             .get(format!("/changes/?{}", generate_query_string(&params)))
+            .await?;
+
+        match result {
+            crate::client::Response::Success(data) => Ok(data.data),
+            crate::client::Response::Error(err) => todo!("{:?}", err),
+            crate::client::Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn count(&self) -> Result<ChangesCountResponse, NovuError> {
+        let result: Response<ChangesCountResponse> = self.client.get("/changes/count").await?;
+
+        match result {
+            crate::client::Response::Success(data) => Ok(data.data),
+            crate::client::Response::Error(err) => todo!("{:?}", err),
+            crate::client::Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn bulk_apply(
+        &self,
+        data: BulkApplyChangesRequest,
+    ) -> Result<ApplyChangeResponse, NovuError> {
+        let result: Response<ApplyChangeResponse> =
+            self.client.post("/changes/bulk/apply", Some(&data)).await?;
+
+        match result {
+            crate::client::Response::Success(data) => Ok(data.data),
+            crate::client::Response::Error(err) => todo!("{:?}", err),
+            crate::client::Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn apply(&self, change_id: String) -> Result<ApplyChangeResponse, NovuError> {
+        let result: Response<ApplyChangeResponse> = self
+            .client
+            .post(format!("/changes/{}/apply", change_id), None::<&()>)
             .await?;
 
         match result {
