@@ -1,3 +1,4 @@
+pub mod blueprint;
 pub mod changes;
 pub mod client;
 pub mod consts;
@@ -5,6 +6,7 @@ pub mod environments;
 pub mod error;
 pub mod events;
 pub mod feeds;
+pub mod inbound_parse;
 pub mod messages;
 pub mod subscriber;
 
@@ -13,6 +15,7 @@ use environments::{ApiKey, Environment, EnvironmentPayload};
 use error::NovuError;
 use events::{TriggerPayload, TriggerResponse};
 use feeds::Feeds;
+use inbound_parse::InboundParse;
 use messages::Messages;
 use serde::{Deserialize, Serialize};
 
@@ -159,6 +162,30 @@ impl Novu {
             },
             client::Response::Messages(err) => Err(NovuError::InvalidValues(
                 "current_environment".to_string(),
+                format!("{:?}", err.message),
+            )),
+        }
+    }
+
+    pub async fn validate_mx_record_setup_for_inbound_parse(
+        &self,
+    ) -> Result<InboundParse, NovuError> {
+        let result = self.client.get("/inbound-parse/mx/status").await?;
+
+        match result {
+            client::Response::Success(data) => Ok(data.data),
+            client::Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError(
+                    "/inbound-parse/mx/status".to_string(),
+                )),
+                400 => {
+                    println!("{:?}", err);
+                    todo!()
+                }
+                code => todo!("{}", code),
+            },
+            client::Response::Messages(err) => Err(NovuError::InvalidValues(
+                "validating".to_string(),
                 format!("{:?}", err.message),
             )),
         }
