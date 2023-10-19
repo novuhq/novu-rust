@@ -163,7 +163,7 @@ impl Layouts {
     pub async fn set_default(&self, id: String) -> Result<(), NovuError> {
         let result: Response<()> = self
             .client
-            .post(format!("/layouts/{}/default", id), None)
+            .post(format!("/layouts/{}/default", id), None::<()>)
             .await?;
 
         match result {
