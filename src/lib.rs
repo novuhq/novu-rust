@@ -1,3 +1,4 @@
+pub mod blueprint;
 pub mod changes;
 pub mod client;
 pub mod consts;
