@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 // A utility function to generate the query string for multiple parameters
 pub fn generate_query_string(params: &HashMap<&str, Option<impl ToString>>) -> String {
     let mut query_string = String::new();

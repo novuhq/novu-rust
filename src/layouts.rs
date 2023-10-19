@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{
     client::{Client, Response},
     error::NovuError,
@@ -93,7 +95,7 @@ impl Layouts {
     ) -> Result<Vec<LayoutResponse>, NovuError> {
         let mut params = HashMap::new();
         params.insert("page", page.map(|p| p.to_string()));
-        params.insert("pageSize", limit.map(|l| l.to_string()));
+        params.insert("pageSize", page_size.map(|l| l.to_string()));
         params.insert("sortBy", sort_by.map(|s| s.to_string()));
         params.insert("orderBy", order_by.map(|s| s.to_string()));
 
