@@ -8,6 +8,7 @@ pub mod events;
 pub mod feeds;
 pub mod inbound_parse;
 pub mod layouts;
+pub mod messages;
 pub mod subscriber;
 pub mod utils;
 
@@ -18,6 +19,7 @@ use events::{TriggerPayload, TriggerResponse};
 use feeds::Feeds;
 use inbound_parse::InboundParse;
 use layouts::Layouts;
+use messages::Messages;
 use serde::{Deserialize, Serialize};
 use utils::generate_query_string;
 
@@ -40,6 +42,7 @@ pub struct Novu {
     client: Client,
     pub feeds: Feeds,
     pub layouts: Layouts,
+    pub messages: Messages,
 }
 
 impl Novu {
@@ -47,11 +50,13 @@ impl Novu {
         let client = Client::new(api_key, api_url)?;
         let feeds = Feeds::new(client.clone_client());
         let layouts = Layouts::new(client.clone_client());
+        let messages = Messages::new(client.clone_client());
 
         Ok(Self {
             client,
             feeds,
             layouts,
+            messages,
         })
     }
 
