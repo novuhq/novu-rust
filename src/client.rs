@@ -118,7 +118,7 @@ impl Client {
     pub async fn patch<T: DeserializeOwned>(
         &self,
         endpoint: impl ToString,
-        data: &impl Serialize,
+        data: Option<&impl Serialize>,
     ) -> Result<Response<T>, NovuError> {
         let res = self
             .client

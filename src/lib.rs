@@ -21,7 +21,6 @@ use inbound_parse::InboundParse;
 use layouts::Layouts;
 use messages::Messages;
 use serde::{Deserialize, Serialize};
-use utils::generate_query_string;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
