@@ -179,7 +179,7 @@ impl Messages {
             .await?;
 
         match result {
-            Response::Success(data) => Ok(data),
+            Response::Success(data) => Ok(data.data),
             Response::Error(err) => match err.status_code {
                 401 => Err(NovuError::UnauthorizedError("/messages".to_string())),
                 code => todo!("{}", code),
@@ -212,7 +212,7 @@ impl Messages {
 
         if let Some(channel) = &payload.channel {
             // Add the "channel" query parameter if it's Some.
-            url.push_str(&format!("?channel={}", channel));
+            url.push_str(&format!("?channel={:?}", channel));
         }
 
         let result: Response<()> = self.client.delete(&url).await?;

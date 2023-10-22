@@ -115,6 +115,24 @@ impl Client {
         }
     }
 
+    pub async fn patch<T: DeserializeOwned>(
+        &self,
+        endpoint: impl ToString,
+        data: Option<&impl Serialize>,
+    ) -> Result<Response<T>, NovuError> {
+        let res = self
+            .client
+            .patch(self.get_url(endpoint))
+            .json(&data)
+            .send()
+            .await;
+
+        match res {
+            Ok(response) => Ok(response.json::<Response<T>>().await?),
+            Err(err) => Err(NovuError::HttpError(err)),
+        }
+    }
+
     fn get_url(&self, endpoint: impl ToString) -> String {
         format!("{}{}", self.api_url, endpoint.to_string())
     }
