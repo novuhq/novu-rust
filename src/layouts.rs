@@ -167,7 +167,7 @@ impl Layouts {
             .await?;
 
         match result {
-            Response::Success(data) => Ok(()),
+            Response::Success(_data) => Ok(()),
             Response::Error(err) => match err.status_code {
                 401 => Err(NovuError::UnauthorizedError("/layouts".to_string())),
                 code => todo!("{}", code),
