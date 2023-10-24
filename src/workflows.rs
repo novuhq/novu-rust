@@ -145,11 +145,11 @@ impl Workflows {
     pub async fn list(
         &self,
         page: Option<i32>,
-        page_size: Option<i32>,
+        limit: Option<i32>,
     ) -> Result<WorkflowsResponse, NovuError> {
-        let mut params: HashMap<&str, Option<i32>> = HashMap::new();
+        let mut params: HashMap<&str, Option<String>> = HashMap::new();
         params.insert("page", page.map(|p| p.to_string()));
-        params.insert("limit", page_size.map(|l| l.to_string()));
+        params.insert("limit", limit.map(|l| l.to_string()));
 
         let query = generate_query_string(&params);
         let result = self
