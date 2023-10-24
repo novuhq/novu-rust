@@ -151,7 +151,6 @@ impl Workflows {
         params.insert("page", page.map(|p| p.to_string()));
         params.insert("limit", limit.map(|l| l.to_string()));
 
-        let query = generate_query_string(&params);
         let result = self
             .client
             .get(format!("/workflows/?{}", generate_query_string(&params)))
