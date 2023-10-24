@@ -11,6 +11,7 @@ pub mod layouts;
 pub mod messages;
 pub mod subscriber;
 pub mod utils;
+pub mod workflows;
 
 use client::Client;
 use environments::{ApiKey, Environment, EnvironmentPayload};
@@ -21,6 +22,7 @@ use inbound_parse::InboundParse;
 use layouts::Layouts;
 use messages::Messages;
 use serde::{Deserialize, Serialize};
+use workflows::Workflows;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ChannelTypeEnum {
@@ -42,6 +44,7 @@ pub struct Novu {
     pub feeds: Feeds,
     pub layouts: Layouts,
     pub messages: Messages,
+    pub workflows: Workflows,
 }
 
 impl Novu {
@@ -50,12 +53,14 @@ impl Novu {
         let feeds = Feeds::new(client.clone_client());
         let layouts = Layouts::new(client.clone_client());
         let messages = Messages::new(client.clone_client());
+        let workflows = Workflows::new(client.clone_client());
 
         Ok(Self {
             client,
             feeds,
             layouts,
             messages,
+            workflows,
         })
     }
 
