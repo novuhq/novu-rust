@@ -152,3 +152,128 @@ pub struct ChannelTypeLimit {
 pub struct Integrations {
     client: Client,
 }
+
+impl Integrations {
+    pub fn new(client: Client) -> Self {
+        Self { client }
+    }
+
+    pub async fn get_integrations(&self) -> Result<Vec<Integration>, NovuError> {
+        let result: Response<Vec<Integration>> = self
+            .client
+            .get("/integrations")
+            .await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                400 => {
+                    println!("{:?}", err);
+                    todo!()
+                }
+                401 => Err(NovuError::UnauthorizedError("/integrations".to_string())),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn create(&self, data: CreateIntegrationRequest) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self.client.post("/integrations", Some(&data)).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError("/integrations".to_string())),
+                409 => {
+                    println!("Integration already exists");
+                    todo!()
+                }
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn active_integrations(&self) -> Result<Vec<Integration>, NovuError> {
+        let result: Response<Vec<Integration>> = self.client.get("/integrations/active").await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError("/integrations/active".to_string())),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn webhook_support_status(&self, provider_id: u32) -> Result<bool, NovuError> {
+        let result: Response<bool> = self.client.get(format!("/integrations/webhook/provider/{}/status", provider_id)).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError(format!("/integrations/provider/{}/webhook-support", provider_id))),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn update_integration(&self, integration_id: u32, update_integration: UpdateIntegrationRequest) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self.client.put(format!("/integrations/{}", integration_id), &Some(update_integration)).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError("/integrations".to_string())),
+                409 => {
+                    println!("Integration already exists");
+                    todo!()
+                }
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn delete_integration(&self, integration_id: u32) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self.client.delete(format!("/integrations/{}", integration_id)).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError("/integrations".to_string())),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn set_primary_integration(&self, integration_id: u32) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self.client.post(format!("/integrations/{}/set-primary", integration_id), None::<&()>).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError("/integrations".to_string())),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+
+    pub async fn get_channel_limit(&self, channel_type: ChannelTypeEnum) -> Result<ChannelTypeLimit, NovuError> {
+        let result: Response<ChannelTypeLimit> = self.client.get(format!("/integrations/{}/limit", channel_type)).await?;
+
+        match result {
+            Response::Success(data) => Ok(data.data),
+            Response::Error(err) => match err.status_code {
+                401 => Err(NovuError::UnauthorizedError(format!("/integrations/channel/{}/limit", channel_type))),
+                code => todo!("{}", code),
+            },
+            Response::Messages(err) => todo!("{:?}", err),
+        }
+    }
+}
