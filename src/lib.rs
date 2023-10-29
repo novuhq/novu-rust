@@ -7,12 +7,12 @@ pub mod error;
 pub mod events;
 pub mod feeds;
 pub mod inbound_parse;
+pub mod integrations;
 pub mod layouts;
 pub mod messages;
 pub mod subscriber;
 pub mod utils;
 pub mod workflows;
-pub mod integrations;
 
 use std::fmt::Display;
 

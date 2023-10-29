@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{ChannelTypeEnum, client::{Response, Client}, error::NovuError};
+use crate::{
+    client::{Client, Response},
+    error::NovuError,
+    ChannelTypeEnum,
+};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,7 +22,7 @@ pub struct Integration {
     pub deleted_at: String,
     pub deleted_by: String,
     pub primary: bool,
-    pub conditions: Option<Vec<StepFilter>>
+    pub conditions: Option<Vec<StepFilter>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,7 +53,7 @@ pub struct Credentials {
     pub redirect_url: Option<String>,
     pub hmac: Option<bool>,
     pub service_account: Option<String>,
-    pub ip_pool_name: Option<String>
+    pub ip_pool_name: Option<String>,
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -58,7 +62,7 @@ pub struct StepFilter {
     is_negated: bool,
     step_filter_type: StepFilterType,
     value: StepFilterValue,
-    children: Vec<FieldFilterPart>
+    children: Vec<FieldFilterPart>,
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -87,7 +91,7 @@ pub struct FieldFilterPart {
     pub field: String,
     pub value: String,
     pub operator: FieldFilterPartOperator,
-    pub on: FieldFilterPartOn
+    pub on: FieldFilterPartOn,
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -106,14 +110,14 @@ pub enum FieldFilterPartOperator {
     NotBetween,
     LIKE,
     NotLike,
-    IN
+    IN,
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FieldFilterPartOn {
     SUBSCRIBER,
-    PAYLOAD
+    PAYLOAD,
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -128,7 +132,7 @@ pub struct CreateIntegrationRequest {
     credentials: Option<Credentials>,
     active: Option<bool>,
     check: Option<bool>,
-    conditions: Option<Vec<StepFilter>>
+    conditions: Option<Vec<StepFilter>>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -140,7 +144,7 @@ pub struct UpdateIntegrationRequest {
     credentials: Option<Credentials>,
     active: Option<bool>,
     check: Option<bool>,
-    conditions: Vec<StepFilter>
+    conditions: Vec<StepFilter>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -159,10 +163,7 @@ impl Integrations {
     }
 
     pub async fn get_integrations(&self) -> Result<Vec<Integration>, NovuError> {
-        let result: Response<Vec<Integration>> = self
-            .client
-            .get("/integrations")
-            .await?;
+        let result: Response<Vec<Integration>> = self.client.get("/integrations").await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
@@ -201,7 +202,9 @@ impl Integrations {
         match result {
             Response::Success(data) => Ok(data.data),
             Response::Error(err) => match err.status_code {
-                401 => Err(NovuError::UnauthorizedError("/integrations/active".to_string())),
+                401 => Err(NovuError::UnauthorizedError(
+                    "/integrations/active".to_string(),
+                )),
                 code => todo!("{}", code),
             },
             Response::Messages(err) => todo!("{:?}", err),
@@ -209,20 +212,39 @@ impl Integrations {
     }
 
     pub async fn webhook_support_status(&self, provider_id: u32) -> Result<bool, NovuError> {
-        let result: Response<bool> = self.client.get(format!("/integrations/webhook/provider/{}/status", provider_id)).await?;
+        let result: Response<bool> = self
+            .client
+            .get(format!(
+                "/integrations/webhook/provider/{}/status",
+                provider_id
+            ))
+            .await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
             Response::Error(err) => match err.status_code {
-                401 => Err(NovuError::UnauthorizedError(format!("/integrations/provider/{}/webhook-support", provider_id))),
+                401 => Err(NovuError::UnauthorizedError(format!(
+                    "/integrations/provider/{}/webhook-support",
+                    provider_id
+                ))),
                 code => todo!("{}", code),
             },
             Response::Messages(err) => todo!("{:?}", err),
         }
     }
 
-    pub async fn update_integration(&self, integration_id: u32, update_integration: UpdateIntegrationRequest) -> Result<Integration, NovuError> {
-        let result: Response<Integration> = self.client.put(format!("/integrations/{}", integration_id), &Some(update_integration)).await?;
+    pub async fn update_integration(
+        &self,
+        integration_id: u32,
+        update_integration: UpdateIntegrationRequest,
+    ) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self
+            .client
+            .put(
+                format!("/integrations/{}", integration_id),
+                &Some(update_integration),
+            )
+            .await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
@@ -239,7 +261,10 @@ impl Integrations {
     }
 
     pub async fn delete_integration(&self, integration_id: u32) -> Result<Integration, NovuError> {
-        let result: Response<Integration> = self.client.delete(format!("/integrations/{}", integration_id)).await?;
+        let result: Response<Integration> = self
+            .client
+            .delete(format!("/integrations/{}", integration_id))
+            .await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
@@ -251,8 +276,17 @@ impl Integrations {
         }
     }
 
-    pub async fn set_primary_integration(&self, integration_id: u32) -> Result<Integration, NovuError> {
-        let result: Response<Integration> = self.client.post(format!("/integrations/{}/set-primary", integration_id), None::<&()>).await?;
+    pub async fn set_primary_integration(
+        &self,
+        integration_id: u32,
+    ) -> Result<Integration, NovuError> {
+        let result: Response<Integration> = self
+            .client
+            .post(
+                format!("/integrations/{}/set-primary", integration_id),
+                None::<&()>,
+            )
+            .await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
@@ -264,13 +298,22 @@ impl Integrations {
         }
     }
 
-    pub async fn get_channel_limit(&self, channel_type: ChannelTypeEnum) -> Result<ChannelTypeLimit, NovuError> {
-        let result: Response<ChannelTypeLimit> = self.client.get(format!("/integrations/{}/limit", channel_type)).await?;
+    pub async fn get_channel_limit(
+        &self,
+        channel_type: ChannelTypeEnum,
+    ) -> Result<ChannelTypeLimit, NovuError> {
+        let result: Response<ChannelTypeLimit> = self
+            .client
+            .get(format!("/integrations/{}/limit", channel_type))
+            .await?;
 
         match result {
             Response::Success(data) => Ok(data.data),
             Response::Error(err) => match err.status_code {
-                401 => Err(NovuError::UnauthorizedError(format!("/integrations/channel/{}/limit", channel_type))),
+                401 => Err(NovuError::UnauthorizedError(format!(
+                    "/integrations/channel/{}/limit",
+                    channel_type
+                ))),
                 code => todo!("{}", code),
             },
             Response::Messages(err) => todo!("{:?}", err),
