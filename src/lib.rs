@@ -7,11 +7,14 @@ pub mod error;
 pub mod events;
 pub mod feeds;
 pub mod inbound_parse;
+pub mod integrations;
 pub mod layouts;
 pub mod messages;
 pub mod subscriber;
 pub mod utils;
 pub mod workflows;
+
+use std::fmt::Display;
 
 use client::Client;
 use environments::{ApiKey, Environment, EnvironmentPayload};
@@ -24,11 +27,26 @@ use messages::Messages;
 use serde::{Deserialize, Serialize};
 use workflows::Workflows;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, PartialOrd, Serialize, Deserialize, Debug)]
+#[serde(untagged)]
 pub enum ChannelTypeEnum {
+    InApp,
     EMAIL,
     SMS,
-    DIRECT,
+    CHAT,
+    PUSH,
+}
+
+impl Display for ChannelTypeEnum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ChannelTypeEnum::InApp => write!(f, "in_app"),
+            ChannelTypeEnum::EMAIL => write!(f, "email"),
+            ChannelTypeEnum::SMS => write!(f, "sms"),
+            ChannelTypeEnum::CHAT => write!(f, "chat"),
+            ChannelTypeEnum::PUSH => write!(f, "push"),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
