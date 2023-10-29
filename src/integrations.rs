@@ -57,9 +57,10 @@ pub struct Credentials {
 }
 
 #[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct StepFilter {
+    #[serde(rename = "isNegated")]
     is_negated: bool,
+    #[serde(rename = "type")]
     step_filter_type: StepFilterType,
     value: StepFilterValue,
     children: Vec<FieldFilterPart>,
