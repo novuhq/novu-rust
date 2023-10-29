@@ -12,6 +12,7 @@ pub mod messages;
 pub mod subscriber;
 pub mod utils;
 pub mod workflows;
+pub mod integrations;
 
 use std::fmt::Display;
 
