@@ -1,0 +1,53 @@
+repo_name: novuhq/novu-rust
+report_id: aa4a63e3d8079ad1bd766b31e09e7d63
+version: 0.1
+repo_type: Public
+timestamp: '2024-01-05T09:22:23+00:00'
+requested_by: king-11
+provider: github
+branch: master
+detected_tools_count: 4
+tools:
+- name: Rust
+  description: A safe, concurrent, practical language
+  website_url: http://www.rust-lang.org/
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1070/v7txhrjp9pdqrkdtxxp0.png
+  detection_source_url: https://github.com/novuhq/novu-rust
+  detection_source: Repo Metadata
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/novuhq/novu-rust
+  detection_source: Repo Metadata
+- name: GitHub Actions
+  description: Automate your workflow from idea to production
+  website_url: https://github.com/features/actions
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source_url: https://github.com/novuhq/novu-rust/blob/master/.github/workflows/dependencies.yml
+  detection_source: ".github/workflows/dependencies.yml"
+  last_updated_by: Midka
+  last_updated_on: 2023-10-22 18:09:18.000000000 Z
+- name: Nix
+  description: 'A package manager for Linux and other Unix systems '
+  website_url: http://nixos.org/nix
+  license: LGPL-2.1
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/service/4348/ET9J1uY-_400x400.png
+  detection_source_url: https://github.com/novuhq/novu-rust
+  detection_source: Repo Metadata
